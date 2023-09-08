@@ -29,11 +29,10 @@ const (
 var (
 	response       payload
 	getPublicIPURL = "http://ifconfig.co/json"
-	output         = `<head><title>%s</title></head>
-	<H1 style="text-align:center;">Hostname: %s</H1>
-	<H2 style="text-align:center;">Public IP: %s</H2>
-	<H3 style="text-align:center;">Private IP: %s</H3>
-	<footer style="text-align:center;"Echo web server</footer>`
+	output         = `%s
+	Hostname: %s
+	Public IP: %s
+	Private IP: %s`
 	listenAddress = flag.String("listen", "0.0.0.0:8080", "echo server listening port")
 	payloadSize   = flag.Int("payload", 10, "Size of download payload in KB (default: 10KB")
 	filename      = "test-download"
@@ -148,6 +147,7 @@ func downloader(i int) func(http.ResponseWriter, *http.Request) {
 			size := downloadBytes(i)
 			file := make([]byte, size)
 			rand.Read(file)
+			log.Printf("Downloading file of size %d MB", size/1024/1024)
 
 			FileContentType := http.DetectContentType(file)
 
