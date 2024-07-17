@@ -32,7 +32,8 @@ var (
 	output         = `%s
 	Hostname: %s
 	Public IP: %s
-	Private IP: %s`
+	Private IP: %s
+	Client IP: %s`
 	listenAddress = flag.String("listen", "0.0.0.0:8080", "echo server listening port")
 	payloadSize   = flag.Int("payload", 10, "Size of download payload in KB (default: 10KB")
 	filename      = "test-download"
@@ -117,7 +118,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			w.Write(j)
 
 		default:
-			w.Write([]byte(fmt.Sprintf(output, response.Server, response.Server, response.IP, response.Private)))
+			w.Write([]byte(fmt.Sprintf(output, response.Server, response.Server, response.IP, response.Private, r.RemoteAddr)))
 		}
 
 	default:
