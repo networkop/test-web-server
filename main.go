@@ -19,6 +19,7 @@ type payload struct {
 	Server   string `json:"server,omitempty"`
 	IP       string `json:"ip"`
 	Private  string `json:"private,omitempty"`
+	ClientIP string `json:"clientIP,omitempty"`
 }
 
 const (
@@ -114,6 +115,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		switch r.Header.Get("Accept") {
 
 		case "application/json":
+			response.ClientIP = response.Private
 			j, _ := json.Marshal(response)
 			w.Write(j)
 
@@ -121,6 +123,25 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(fmt.Sprintf(output, response.Server, response.Server, response.IP, response.Private, r.RemoteAddr)))
 		}
 
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+
+	go getPublicIP()
+
+}
+
+func jsonHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Printf("Received request from %s for %s/json", r.RemoteAddr, r.Host)
+
+	switch r.Method {
+	case "GET":
+		{
+			response.ClientIP = response.Private
+			j, _ := json.Marshal(response)
+			w.Write(j)
+		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -207,6 +228,7 @@ func main() {
 	go getPublicIP()
 
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/json", jsonHandler)
 	http.HandleFunc("/download", downloader(*payloadSize))
 	http.HandleFunc("/upload", uploader(*payloadSize))
 
