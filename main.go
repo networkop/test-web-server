@@ -115,7 +115,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		switch r.Header.Get("Accept") {
 
 		case "application/json":
-			response.ClientIP = response.Private
+			response.ClientIP = r.RemoteAddr
 			j, _ := json.Marshal(response)
 			w.Write(j)
 
@@ -138,7 +138,7 @@ func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		{
-			response.ClientIP = response.Private
+			response.ClientIP = r.RemoteAddr
 			j, _ := json.Marshal(response)
 			w.Write(j)
 		}
