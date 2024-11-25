@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"flag"
@@ -10,8 +11,10 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type payload struct {
@@ -25,6 +28,7 @@ type payload struct {
 const (
 	maxUploadFileSize = 1024 * 1024 * 1024 // 1GB
 	downloadSizeParam = "sizeMB"
+	crawlerList       = "crawl"
 )
 
 var (
@@ -36,7 +40,7 @@ var (
 	Private IP: %s
 	Client IP: %s`
 	listenAddress = flag.String("listen", "0.0.0.0:8080", "echo server listening port")
-	payloadSize   = flag.Int("payload", 10, "Size of download payload in KB (default: 10KB")
+	payloadSize   = flag.Int("payload", 1024, "Size of download payload in KB (default: 1MB")
 	filename      = "test-download"
 )
 
@@ -112,6 +116,28 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 
+		toCrawl := r.URL.Query().Get(crawlerList)
+		if toCrawl != "" {
+			data, err := base64.StdEncoding.DecodeString(toCrawl)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			for _, host := range strings.Split(string(data), ",") {
+
+				u := url.URL{
+					Scheme: "https",
+					Host:   strings.TrimSuffix(host, "\n"),
+				}
+				log.Printf("Crawling %s", u.String())
+				_, err := http.Get(u.String())
+				if err != nil {
+					log.Printf("Failed to crawl %s: %s", u.String(), err)
+					continue
+				}
+
+			}
+		}
 		switch r.Header.Get("Accept") {
 
 		case "application/json":
