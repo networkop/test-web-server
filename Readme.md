@@ -20,7 +20,7 @@ Returns the same server metadata in JSON format
 
 Same as #2
 
-4. curl "http://{ip}:8080/?crawl=$(echo 'google.com,aws.amazon.com' | base64)"
+4. curl "http://{ip}:8080/?crawl=$(echo 'google.com,aws.amazon.com' | base64 -w0)"
 
 Same as #1 but also instructs the web server to crawl the list of hostnames, encoded as comma-separated base64 string. 
 

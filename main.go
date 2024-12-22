@@ -127,12 +127,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 				u := url.URL{
 					Scheme: "https",
-					Host:   strings.TrimSuffix(host, "\n"),
+					Host:   host,
 				}
-				log.Printf("Crawling %s", u.String())
-				_, err := http.Get(u.String())
+
+				urlString, _ := url.PathUnescape(u.String())
+				urlString = strings.TrimSuffix(urlString, "\n")
+
+				log.Printf("Crawling %s", urlString)
+				_, err := http.Get(urlString)
 				if err != nil {
-					log.Printf("Failed to crawl %s: %s", u.String(), err)
+					log.Printf("Failed to crawl %s: %s", urlString, err)
 					continue
 				}
 
