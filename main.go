@@ -15,6 +15,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type payload struct {
@@ -134,7 +135,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				urlString = strings.TrimSuffix(urlString, "\n")
 
 				log.Printf("Crawling %s", urlString)
-				_, err := http.Get(urlString)
+				client := http.Client{
+					Timeout: 1 * time.Second,
+				}
+				_, err := client.Get(urlString)
 				if err != nil {
 					log.Printf("Failed to crawl %s: %s", urlString, err)
 					continue
